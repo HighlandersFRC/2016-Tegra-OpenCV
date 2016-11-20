@@ -1,0 +1,6 @@
+<root name="hsv_tuner">
+  <app name="hsv_tuner" version="1"/>
+  <camera device="0" exposure_time="-1"/>
+  <hsv h="82" s="114" v="91"/>
+  <hsv_tol h="4" s="42" v="27"/>
+</root>
