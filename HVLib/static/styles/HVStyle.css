@@ -1,0 +1,53 @@
+
+body {
+    background-color: black;
+}
+h1{
+    color:white;
+    margin-left:20px;
+    position: relative;
+    left: 43%;
+}
+img{
+    border-radius: 80px;
+}
+input{
+    color:blue;
+    background-color:white; 
+    padding: 16px 32px;
+    border:none;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration:0s;
+    transition-duration: 0s;
+    cursor: pointer;
+    border-radius: 4px;
+    position: relative;
+    left:40%    
+}
+input:hover{
+    background-color:white;
+    color:black;
+    border: 2px solid blue;
+    border-radius: 4px;
+    text-align: center;
+    padding:16px 32px;
+    color:blue;
+    margin: 2px 0px;
+}
+p{
+    color:white;
+
+}
+.inputfile{
+width: 0.1px;
+height: 0.1px;
+opacity: 0;
+overflow: hidden;
+position:absolute;
+z-index:-1;
+
+}

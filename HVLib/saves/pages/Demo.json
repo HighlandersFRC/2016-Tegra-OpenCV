@@ -1,0 +1,1 @@
+{"frame_one_cam": "cam_zero", "frame_two_cam": "cam_zero", "frame_zero_cam": "cam_zero", "frame_one_vision": {"camera": "cam_zero", "visionName": "grayscale"}, "frame_zero_vision": {"camera": "cam_zero", "visionName": "novision"}, "frame_two_vision": {"Threshold": 128, "camera": "cam_zero", "visionName": "edge", "Threshold_Two": 128}}

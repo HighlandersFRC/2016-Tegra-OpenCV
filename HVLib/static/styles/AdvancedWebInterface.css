@@ -1,0 +1,46 @@
+
+body {
+    background-color: black;
+}
+h1{
+    color:white;
+    margin-left:20px;
+    position: relative;
+    left: 43%;
+}
+img{
+    border-radius:0px;    
+    border:5px solid #150080;
+}
+
+#video_zero {
+    position:absolute;
+    left: 256px;
+    top: 96px;    
+}
+#video_one {
+    position:absolute;
+    left: 928px;
+    top: 96px;   
+}
+#video_two {
+    position:absolute;
+    left: 256px;
+    top: 608px;    
+}
+img:hover{
+    border-color: white;
+}
+
+#globalSaveDiv{
+    color:white;
+    position:absolute;
+    left:1380px;
+    top:1024px;
+}
+#statDiv{
+    color:white;
+    position:absolute;
+    left:928px;
+    top:608px;
+}

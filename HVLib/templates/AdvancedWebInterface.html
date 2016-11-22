@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang = "en">
+    <head>
+        <title> HighlanderVision </title>
+        <link rel="stylesheet" type="text/css" href="static/styles/AdvancedWebInterface.css">
+    </head>
+    <body>
+        <h1 id ="video_name"> Highlanders Vision </h1>
+        <img id = "video_zero" alt = 'video_stream' src="{{ url_for('video_zero') }}"height = "480"width="640">
+        <img id = "video_one" alt = 'video_stream_one' src="{{ url_for('video_one') }}"height = "480"width="640">
+        <img id = "video_two" alt = 'video_stream_two' src="{{ url_for('video_two') }}"height = "480"width="640">
+        <div id = "globalSaveDiv">
+            <p>Global Configuration</p>
+            <button type = "button" onclick="reload()">reload</button>
+            <select id = "chooseGlobalConfig" name = "choosePage" onchange="update(6)"></select>
+            <input type = "text" name = "saveGlobalConfig" id="saveGlobalConfigid"></input>
+            <button type = "button" onclick="save()">Save</button>  
+        </div>
+        <div id = statDiv>
+            <div id = sliderDiv>
+            </div>
+        </div>
+        <script type = text/javascript src = "{{ url_for('static',filename='jquery.min.js')}}"></script> 
+        <script>
+            var visionFiles; // list of raw JSON data can be used as template for what elements are neede
+            var globalConfigFiles; //list of loadable global config files           
+            var frameStats; // data array describing the currently selected Frame
+            var selectedFrame = -1; // integer value of which frame is selected
+            var sliderDiv;
+            var cameraOptions;
+            var update = function(action){
+                $(function(){
+                    $.getJSON('/updateValues',{ 
+                        pageConfig: $('#chooseGlobalConfig option:selected').text(),
+                        saveAs: $('input[name=saveGlobalConfig]').val(),
+                        action: action,
+                        selectedFrame: selectedFrame,
+                        frameStats: JSON.stringify(frameStats),
+                        selectedVision: $("#chooseVision option:selected").text(),
+                        camera: $("#chooseCamera option:selected").text()
+                    }, function(data) {
+                      $("#result").text("");
+                    });
+                });
+            }
+            $("#video_zero").click(function(){                     
+                loadVisionStats(0);
+            });
+            $("#video_one").click(function(){                     
+                loadVisionStats(1);
+            });
+            $("#video_two").click(function(){                     
+                loadVisionStats(2);
+            });
+
+            var save = function(){
+                update(5); 
+                alert(document.getElementById("saveGlobalConfigid").value + " Saved");
+            }
+            var reload = function(){ 
+                update(6);
+            }
+
+            var queryFrame = function(){
+                $.ajax({
+                    url: "/frame_query",
+                    dataType: "json", 
+                    async:false,
+                    success: function(data){
+                        console.log("Got Frame load data", data); 
+                        frameStats = data; 
+                    }
+                });
+            } 
+            var updateFrameStats = function(key, value){
+                frameStats[key] = value;
+                $("#" + key + "Text").attr("value",value);
+                update(0);
+                
+            }
+            var visionChangeUpdate=function(){ 
+                $('#sliderDiv').empty();
+                update(2);
+                $.when(queryFrame()).done(function(){});
+                loadSliders();
+                update(0);
+
+            } 
+
+            var generateSlider = function(id, value){
+                var newSlider = document.createElement("input")
+                //TODO make sure that no other element has this name
+                newSlider.setAttribute("id", id);
+                newSlider.setAttribute("type", "range");
+                newSlider.setAttribute("min","0");
+                newSlider.setAttribute("max","255");
+                newSlider.setAttribute("value" , value);
+                newSlider.setAttribute("onchange","updateFrameStats(id,this.value)"); 
+                
+                newSlider.innerHTML = value;
+                newSlider.setAttribute("innerHTML",value);
+                return newSlider;
+
+
+
+            }
+            var generateSliderText = function(id,value){
+                var newText = document.createElement("input");
+                newText.setAttribute("id", id+"Text");
+                newText.setAttribute("value", value);
+                newText.setAttribute("innerHTML",value);
+                newText.setAttribute("type","text");
+                newText.setAttribute("maxLength","3");
+                newText.setAttribute("size","3");
+                var style = document.createElement("style");
+                style = "div{color=white; background-color:black;}";
+                newText.append(style);
+                return newText;
+            }
+
+            var loadSliders=function(){
+                for (var key in frameStats) {
+                    if (frameStats.hasOwnProperty(key)) {
+                        if (key != "visionName" && key != "camera"){
+                            generateSlider(key,frameStats[key]);
+                            var div = document.createElement("div");
+                            div.append(document.createElement("br"));
+                            var text = document.createTextNode(key + "    ");
+                            div.append(document.createElement("P").appendChild(text));
+                            div.append(generateSlider(key,frameStats[key]));
+                            var valueIndicator = generateSliderText(key,frameStats[key]);
+                            div.append(valueIndicator);
+                            $("#sliderDiv").append(div);
+                                //$("#sliderDiv").append(document.createElement("br"));
+                                //$("#sliderDiv").append(generateSlider(key,frameStats[key]));
+                            }
+                        }
+                    }
+
+            }
+
+            // This function will build out the configurations for each page
+            //TODO Clean this up and put into different functions
+            var loadVisionStats = function(frame){
+                $("#statDiv").find('*').not('#sliderDiv').remove();
+                $("#sliderDiv").find('*').remove();
+                selectedFrame = frame;
+                update(1); 
+                $.when(queryFrame()).done(function(){
+                    //Basic Components of the Frames Stats
+                    var selectVision = document.createElement("select");
+                    selectVision.setAttribute("id","chooseVision");
+                    var selectCamera = document.createElement("select");
+                    selectCamera.setAttribute("id","chooseCamera");
+                    
+                    var toggleMask = document.createElement("input");
+                    toggleMask.setAttribute("type","button");
+                    toggleMask.setAttribute("onclick","update(8)");
+                    toggleMask.setAttribute("value","Mask");
+                    $("#statDiv").prepend(toggleMask);
+                    $("#statDiv").prepend(selectCamera);
+                    $("#statDiv").prepend(selectVision);
+                    
+                    selectVision.setAttribute("onchange","visionChangeUpdate()");
+                    selectCamera.setAttribute("onchange","update(7)");
+
+                    var options = $("#chooseVision"); 
+                    visionFiles.forEach(function(item,idx){ 
+                        options.append($("<option/>").val(idx).text(item.visionName)); 
+                    })
+
+                    var options = $("#chooseCamera");
+                    for (var option in cameraOptions){
+                        options.append($("<option/>").val(option).text(cameraOptions[option])); 
+                    } 
+                    loadSliders();
+                    
+                    var names = ["Video Frame Zero","Video Frame One","Video Frame Two"]
+                    var node = document.createTextNode(names[selectedFrame]);
+                    var para = document.createElement("P");
+                    para.appendChild(node);
+                    $("#statDiv").prepend(para);
+
+                    $("#chooseVision option").filter(function() {
+                           return this.text == frameStats['visionName']; 
+                       }).attr('selected', true); 
+                    $("#chooseCamera option").filter(function() {
+                           return this.text == frameStats['camera']; 
+                       }).attr('selected', true); 
+
+                });
+            } 
+            $.ajaxSetup({async:false});
+
+            $(document).ready( function(){
+                //$("#chooseVision").change(function(event){
+                //    console.log(event); 
+                //})
+                //;
+                $.ajax({
+                    url: "/loadVisionFiles",
+                    dataType: "json",
+                    success: function(data){
+                        console.log("Got Vision Load Data",data);
+                        visionFiles = data;
+                    }
+                });
+                $.ajax({
+                    url: "/loadCameras",
+                    dataType: "json",
+                    success: function(data){
+                        console.log("Got Camera Load Data",data);
+                        cameraOptions = data;
+                    }
+                });
+                $.ajax({
+                    url: "/loadGlobalConfigFiles",
+                    dataType: "json",
+                    success: function(data){
+                        console.log("Got Page Load Data",data);
+                        globalConfigFiles = data;
+                        var options = $("#chooseGlobalConfig");
+                        globalConfigFiles.forEach(function(item,idx){ 
+                            options.append($("<option/>").val(idx).text(item.fileName)); 
+                        })
+                        $("#chooseVision option").filter(function() {
+                           return this.text == 'default'; 
+                        }).attr('selected', true); 
+    
+                    }
+                });
+            });
+
+        </script>
+    </body>
+</html>

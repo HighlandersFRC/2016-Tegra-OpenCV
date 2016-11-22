@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang = "en">
+    <head>
+        <title> BasicVisionStreamExample </title>
+        <link rel="shortcut icon" href="">
+    </head>
+    <body>
+        <h1 id ="video_name"> Video Stream </h1>
+        <img id = "video" alt = 'video_stream' src="{{ url_for('video_feed') }}"height = "480"width="640">
+        <input type = "range" min = "0" max = "255" step="1" value="0" size="10" name="slider" onchange="update()">
+        <script type = text/javascript src = "{{ url_for('static',filename='jquery.min.js')}}"></script> 
+        <script>
+            var update = function(){
+                $(function(){
+                    $.getJSON('/updateValues',{
+                        sliderValue: $('input[name=slider]').val()
+                    }, function(data) {
+                      $("#result").text(data.result);
+                    });
+                    return false;
+                });
+            }
+        </script>
+
+    </body>
+</html>

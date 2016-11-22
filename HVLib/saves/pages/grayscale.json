@@ -1,0 +1,3 @@
+{"frame_zero_cam":"cam_zero", "frame_zero_vision": {"visionName": "novision"},
+ "frame_one_cam":"cam_one", "frame_one_vision": {"visionName": "grayscale"},
+ "frame_two_cam":"cam_two", "frame_two_vision": {"visionName": "novision"}}
