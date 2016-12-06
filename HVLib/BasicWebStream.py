@@ -17,7 +17,7 @@ app = Flask(__name__)
 def gen(): 
     last_time = 0 
     while True: 
-        print 1/(time.time()-last_time)
+        print (1/(time.time()-last_time))
         last_time = time.time()
         frame = cap.read()  
         frame = cv2.imencode('.jpg',frame,[int(IMWRITE_JPEG_QUALITY),50])[1].tostring()

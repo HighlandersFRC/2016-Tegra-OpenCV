@@ -26,7 +26,7 @@ logo = open('assets/Logo.png','rb').read()
 for i in range(0,3):
     try:
         capture = cv2.VideoCapture(int(i)) 
-	capture.set(3,320)# width 320
+        capture.set(3,320)# width 320
         capture.set(4,240)# height 240
         if capture != None and capture.isOpened():
             cap = threadedCamera.USBCamera(capture).start() 
@@ -40,7 +40,7 @@ for i in range(0,3):
                 cameras['cam_two'] = cap
                 availableCameras.append("cam_two")
     except:
-        print "No Camera Present" 
+        print ("No Camera Present") 
 selectedFrame = -1
 
 #create webpage
@@ -116,16 +116,16 @@ def updateValues():
         frameStats = request.args.get("frameStats","",type = str)
         frameDict = ast.literal_eval(frameStats) 
         (visionFiles[selectedFrame]).update(frameDict)
-        print "Updated VisionValues","SelectedFrame: ", selectedFrame
+        print ("Updated VisionValues","SelectedFrame: ", selectedFrame)
 
     elif action == 1:# changeFrame
         selectedFrame = request.args.get("selectedFrame",-1,type=int)
-        print "ChangedFrame to: ", selectedFrame, visionFiles[selectedFrame]
+        print ("ChangedFrame to: ", selectedFrame, visionFiles[selectedFrame])
     
     elif action == 2: # changeVision
         selectedVision = request.args.get("selectedVision","novision",type=str)
         visionFiles[selectedFrame] = getVisionFileObj(selectedVision)
-        print "Changed Vision to: ", visionFiles[selectedFrame]
+        print ("Changed Vision to: ", visionFiles[selectedFrame])
     
     elif action == 4: # saveVisionFile
         name = request.args.get("saveAs","unknown",type=str)
@@ -205,7 +205,7 @@ def loadPageConfiguration(path):
     
     visionFiles[2] = getVisionFileObj(data['frame_two_vision']['visionName'])
     visionFiles[2].update(ast.literal_eval(str(data['frame_two_vision'])))
-    print visionFiles[0],visionFiles[1],visionFiles[2]
+    print (visionFiles[0],visionFiles[1],visionFiles[2])
 
 def saveGlobalConfig(name):
     f = open('saves/pages/' + name + '.json','w+')

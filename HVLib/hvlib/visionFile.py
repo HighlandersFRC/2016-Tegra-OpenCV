@@ -51,6 +51,6 @@ class visionFile(object):
     def getJSON(self): 
         data = self.dataPoints
         data["visionName"] = self.visionName
-        print "visionFiles",self.visionName
+        print ("visionFiles",self.visionName)
         return json.dumps(data)
     

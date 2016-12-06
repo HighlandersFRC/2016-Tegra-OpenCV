@@ -37,7 +37,7 @@ def gen():
     while True:
         global sliderValue
         wiringpi.pwmWrite(18,sliderValue)
-        print 1/(time.time()-last_time)
+        print (1/(time.time()-last_time))
         last_time = time.time()
         frame = cap.read()  
         frame = cv2.imencode('.jpg',frame,[int(IMWRITE_JPEG_QUALITY),50])[1].tostring() 
