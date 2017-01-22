@@ -1,1 +1,1 @@
-__all__ = ["threadedCamera","visionFile","recordedCamera"]
+__all__ = ["threadedCamera","visionFile","recordedCamera","send"]

@@ -10,8 +10,8 @@ class edge(visionFile.visionFile):
     def __init__(self):
         super(edge,self).__init__({"Threshold": 128,"Threshold_Two": 128},self.calculateFrame,"edge")    
     
-    def calculateFrame(self,frame):
-        
+    def calculateFrame(self,cap):
+        frame = cap.read()
         data = self.getDataPoints()
         gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         edge = cv2.Canny(gray,float(data['Threshold'])* 20,float(data['Threshold_Two'])*20,apertureSize=5)

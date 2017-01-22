@@ -10,8 +10,8 @@ class magnetar(visionFile.visionFile):
     def __init__(self):
         super(magnetar,self).__init__({"HMIN": 0,"HMAX": 255,"SMIN": 0,"SMAX": 255,"VMIN": 0,"VMAX": 255},self.calculateFrame,"magnetar")    
     
-    def calculateFrame(self,frame):
-
+    def calculateFrame(self,cap):
+        frame = cap.read()
         data = self.getDataPoints()
 
         mask = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)

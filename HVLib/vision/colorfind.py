@@ -10,8 +10,8 @@ class colorfind(visionFile.visionFile):
     def __init__(self):
         super(colorfind,self).__init__({"HMIN": 128,"HMAX": 128},self.calculateFrame,"colorfid")    
     
-    def calculateFrame(self,frame):
-
+    def calculateFrame(self,cap):
+        frame = cap.read()
         data = self.getDataPoints()
 
         hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)

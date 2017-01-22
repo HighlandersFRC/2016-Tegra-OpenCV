@@ -21,7 +21,8 @@ availableCameras = ['off']
 
 cameras = {'cam_zero':None,'cam_one': None, 'cam_two':None,"off":None }
 logo = open('assets/Logo.png','rb').read()
-
+socket = send.send('10.44.99.2',5801)
+socket.connect()
 
 for i in range(0,3):
     try:
@@ -29,11 +30,13 @@ for i in range(0,3):
         capture.set(3,320)# width 320
         capture.set(4,240)# height 240
         if capture != None and capture.isOpened():
-            cap = threadedCamera.USBCamera(capture).start() 
+            cap = threadedCamera.USBCamera(capture).start()
+            cap.set_capture_index(i)
             if i ==0:
                 cameras['cam_zero'] = cap
                 availableCameras.append("cam_zero")
             elif i ==1:
+                cap.set_capture_time(5)
                 cameras['cam_one'] = cap
                 availableCameras.append("cam_one")
             elif i ==2:
@@ -60,19 +63,14 @@ def gen(index):
         deltaTime = time.time() - lastTime
         #print 1/deltaTime
         lastTime = time.time()
-        if checkAllCamerasOff():
-            frame = cv2.imread("assets/PolarBear.jpg")
-            frame,data,ret,mask = visionFiles[index].calculateFrame(frame)
-            if masks[index]:
-                frame = mask
-            frame = cv2.imencode('.jpg',frame,[int(IMWRITE_JPEG_QUALITY),50])[1].tostring()
-            yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        elif camera == None:
+        if camera == None:
             frame = logo
             yield (b'--frame\r\n'b'Content-Type: image/png\r\n\r\n' + frame + b'\r\n')
         else:
-            frame = cameras[cameraStrings[index]].read() 
-            frame,data,ret,mask = visionFiles[index].calculateFrame(frame)
+            #frame = cameras[cameraStrings[index]].read() 
+            frame,data,ret,mask = visionFiles[index].calculateFrame(cameras[cameraStrings[index]])
+            if len(data) > 0:
+                socket.send(data)
             if masks[index]:
                 frame = mask
             frame = cv2.imencode('.jpg',frame,[int(IMWRITE_JPEG_QUALITY),50])[1].tostring() 
