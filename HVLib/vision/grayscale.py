@@ -9,8 +9,8 @@ class grayscale(visionFile.visionFile):
     def __init__(self):
         super(grayscale,self).__init__({},self.calculateFrame,"grayscale")    
     
-    def calculateFrame(self,frame):
-       
+    def calculateFrame(self,cap):
+	frame = cap.read()
         hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
 
         mask = frame

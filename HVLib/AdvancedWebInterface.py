@@ -21,7 +21,7 @@ availableCameras = ['off']
 
 cameras = {'cam_zero':None,'cam_one': None, 'cam_two':None,"off":None }
 logo = open('assets/Logo.png','rb').read()
-socket = send.send('10.44.99.2',5801)
+socket = send.send('roboRIO-4499-frc.local',5801)
 socket.connect()
 
 for i in range(0,3):
@@ -34,9 +34,10 @@ for i in range(0,3):
             cap.set_capture_index(i)
             if i ==0:
                 cameras['cam_zero'] = cap
+		cap.set_capture_time(5)
                 availableCameras.append("cam_zero")
             elif i ==1:
-                cap.set_capture_time(5)
+                #cap.set_capture_time(200)
                 cameras['cam_one'] = cap
                 availableCameras.append("cam_one")
             elif i ==2:
@@ -57,7 +58,7 @@ def checkAllCamerasOff():
 
 def gen(index): 
     lastTime = time.time()
-    while True:
+    while True:	
         camera = cameras[cameraStrings[index]]
         frame = None
         deltaTime = time.time() - lastTime

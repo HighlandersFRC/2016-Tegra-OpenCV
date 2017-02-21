@@ -3,31 +3,23 @@ from hvlib import visionFile
 import os
 import json
 import numpy as np
+import math
 #
 # blitzar
 #
 
 class blitzar(visionFile.visionFile):
     def __init__(self):
-        super(blitzar,self).__init__({"HMIN": 70,"HMAX": 90,"VMIN": 0,"VMAX": 200},self.calculateFrame,"blitzar")
+        super(blitzar,self).__init__({"HMIN": 70,"HMAX": 90,"VMIN": 0,"VMAX": 200,"SMIN": 0, "SMAX": 200},self.calculateFrame,"blitzar")
 
     
     def calculateFrame(self,cap):
-        cascPath ="/home/john/Documents/2016-Tegra-OpenCV/HVLib/vision/2017-classifier.xml"
         data = self.getDataPoints()
-        targetCascade = cv2.CascadeClassifier(cascPath)
+        #targetCascade = cv2.CascadeClassifier(cascPath)
         frame = cap.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        targets = targetCascade.detectMultiScale(
-        gray,
-        scaleFactor=1.1,
-        minNeighbors=7,
-        minSize=(30, 30),
-        flags=cv2.cv.CV_HAAR_SCALE_IMAGE
-        )
-
-        lower_bound = np.array([float(data['HMIN']),0,float(data['VMIN'])])
-        upper_bound = np.array([float(data['HMAX']),255,float(data['VMAX'])])
+        lower_bound = np.array([float(data['HMIN']),float(data["SMIN"]),float(data['VMIN'])])
+        upper_bound = np.array([float(data['HMAX']),float(data["SMAX"]),float(data['VMAX'])])
 
         hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv,lower_bound,upper_bound)
@@ -37,24 +29,26 @@ class blitzar(visionFile.visionFile):
         yCenter = -1
         targetRect = None
 
-        for (x, y, w, h) in targets:
-            #cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-            maskROI = mask[x:x+w, y:y+h]
-            ret,thresh = cv2.threshold(maskROI,200,255,0)
-            contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-            area = 0
-            for c in contours:
-                area += cv2.contourArea(c)
-            if area / (w*h) > largest_area:
-                xCenter = w/2 + x
-                yCenter = h/2 + y
-                largest_area = area / (w*h)
-                targetRect = [x,y,x+w,y+h]
+        ret,thresh = cv2.threshold(mask,200,255,0)
+        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	
+	if len(contours) > 1:
+		areas = [cv2.contourArea(c) for c in contours]
+		max_index = np.argmax(areas)
+		cnt = contours[max_index]
+		rect = cv2.minAreaRect(cnt)
+		box = cv2.cv.BoxPoints(rect)
+		box = np.int0(box)
 
-        if targetRect is not None:
-            cv2.rectangle(frame, (targetRect[0],targetRect[1]),(targetRect[2],targetRect[3]), (0, 255, 0), 2)
+		xCenter = (box[0][0] + box[1][0] + box[2][0] + box[3][0]) /4
+		yCenter = (box[0][1] + box[1][1] + box[2][1] + box[3][1]) /4
+		cv2.drawContours(frame,[box],0,(0,255,0),2)	
+  
+
         output = {}
-        output_dict = {"xCenter": xCenter, "yCenter": yCenter}
+	distance = 0.0025396523 * yCenter**2 + 0.1000098497 *yCenter + 46.8824851568
+	theta = math.atan2(xCenter-160, distance)
+        output_dict = {"xCenter": xCenter, "yCenter": yCenter,"theta": theta, "distance":distance}
         output = json.dumps(output_dict)
 
         
