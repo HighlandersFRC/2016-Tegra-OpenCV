@@ -102,7 +102,7 @@ class dev(visionFile.visionFile):
 	theta = math.atan2(xCenter-160, distance)
         try:
             output_dict = { "xCenter": xCenter, "yCenter": yCenter,"theta": theta, "distance":distance}	
-            print type(output_dict)
+            #print type(output_dict)
             output = json.dumps(output_dict)
             return frame,output,True,probability
         except:

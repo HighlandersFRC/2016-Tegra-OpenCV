@@ -25,9 +25,9 @@ cameras = {'cam_zero':None,'cam_one': None, 'cam_two':None,"off":None }
 #logo = open('assets/Logo.png','rb').read()
 logo = cv2.imread("assets/Logo.jpg") 
 logo = cv2.imencode('.jpg',logo,[int(IMWRITE_JPEG_QUALITY),10])[1].tostring() 
-logo = np.zeros((320,240))
+#logo = np.zeros((320,240))
 
-socket = send.send('138.67.182.65',5801)
+socket = send.send('roboRIO-4499-frc.local',5801)
 socket.connect()
 
 for i in range(0,3):
@@ -40,7 +40,7 @@ for i in range(0,3):
             cap.set_capture_index(i) 
             if i ==0:
                 cameras['cam_zero'] = cap
-	#	cap.set_capture_time(100)
+		cap.set_capture_time(5)
                 availableCameras.append("cam_zero")
             elif i ==1:
                 #cap.set_capture_time(200)
@@ -66,7 +66,7 @@ def gen(index):
     while True:        
         t = time.time()
         if t - times[index] > 0.03:
-            print 1/(t-times[index])
+           # print 1/(t-times[index])
             times[index] = t
             camera = cameras[cameraStrings[index]]
             frame = None
@@ -241,8 +241,7 @@ def add_header(response):
     return response
 
 if __name__ == '__main__':
-    loadPageConfiguration("saves/pages/default.json")
-    app.run(host='0.0.0.0',port=5800,threaded = True)
-
+        loadPageConfiguration("saves/pages/default.json")
+        app.run(host='0.0.0.0',port=5800,threaded = True)
 capture.release()
 
