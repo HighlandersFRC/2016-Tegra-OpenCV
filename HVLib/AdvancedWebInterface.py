@@ -9,7 +9,7 @@ import os
 import json
 import novision
 import ast
-
+import numpy as np
 visionOptions = [] # contains strings of data that correspond to the names of available vision files 
 
 
@@ -17,11 +17,17 @@ visionFiles = [novision.novision(),novision.novision(),novision.novision()]
 cameraStrings = ["cam_zero","cam_zero","cam_zero"]
 masks =[False,False,False]
 availableCameras = ['off']
+times = [0,0,0]
+
 #get the video capture object
 
 cameras = {'cam_zero':None,'cam_one': None, 'cam_two':None,"off":None }
-logo = open('assets/Logo.png','rb').read()
-socket = send.send('roboRIO-4499-frc.local',5801)
+#logo = open('assets/Logo.png','rb').read()
+logo = cv2.imread("assets/Logo.jpg") 
+logo = cv2.imencode('.jpg',logo,[int(IMWRITE_JPEG_QUALITY),10])[1].tostring() 
+logo = np.zeros((320,240))
+
+socket = send.send('138.67.182.65',5801)
 socket.connect()
 
 for i in range(0,3):
@@ -31,10 +37,10 @@ for i in range(0,3):
         capture.set(4,240)# height 240
         if capture != None and capture.isOpened():
             cap = threadedCamera.USBCamera(capture).start()
-            cap.set_capture_index(i)
+            cap.set_capture_index(i) 
             if i ==0:
                 cameras['cam_zero'] = cap
-		cap.set_capture_time(5)
+	#	cap.set_capture_time(100)
                 availableCameras.append("cam_zero")
             elif i ==1:
                 #cap.set_capture_time(200)
@@ -56,26 +62,25 @@ def checkAllCamerasOff():
             return False
     return True
 
-def gen(index): 
-    lastTime = time.time()
-    while True:	
-        camera = cameras[cameraStrings[index]]
-        frame = None
-        deltaTime = time.time() - lastTime
-        #print 1/deltaTime
-        lastTime = time.time()
-        if camera == None:
-            frame = logo
-            yield (b'--frame\r\n'b'Content-Type: image/png\r\n\r\n' + frame + b'\r\n')
-        else:
-            #frame = cameras[cameraStrings[index]].read() 
-            frame,data,ret,mask = visionFiles[index].calculateFrame(cameras[cameraStrings[index]])
-            if len(data) > 0:
-                socket.send(data)
-            if masks[index]:
-                frame = mask
-            frame = cv2.imencode('.jpg',frame,[int(IMWRITE_JPEG_QUALITY),50])[1].tostring() 
-            yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+def gen(index):  
+    while True:        
+        t = time.time()
+        if t - times[index] > 0.03:
+            print 1/(t-times[index])
+            times[index] = t
+            camera = cameras[cameraStrings[index]]
+            frame = None
+            if camera == None or cameraStrings[index] == "Off":
+                yield (b'--frame\r\n'b'Content-Type: image/png\r\n\r\n' + logo + b'\r\n') 
+            else:
+                frame = cameras[cameraStrings[index]].read() 
+                frame,data,ret,mask = visionFiles[index].calculateFrame(cameras[cameraStrings[index]])
+                if len(data) > 0: 
+                    socket.send(data)
+                if masks[index]:
+                    frame = mask
+                frame = cv2.imencode('.jpg',frame,[int(IMWRITE_JPEG_QUALITY),50])[1].tostring() 
+                yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 #default route
 @app.route('/')

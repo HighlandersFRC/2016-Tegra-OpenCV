@@ -97,13 +97,16 @@ class dev(visionFile.visionFile):
 		cv2.drawContours(frame, [box],0,(0,255,0),1)
 		xCenter = (box[0][0] + box[1][0] + box[2][0] + box[3][0]) /4
 		yCenter = (box[0][1] + box[1][1] + box[2][1] + box[3][1]) /4
-	
-
-	output = {}
-	distance = 0.0025396523 * yCenter**2 + 0.1000098497 *yCenter + 46.8824851568
+		
+	distance = 0.0025396523 * (yCenter**2) + (0.1000098497 * yCenter) + 46.8824851568
 	theta = math.atan2(xCenter-160, distance)
-        output_dict = {"xCenter": xCenter, "yCenter": yCenter,"theta": theta, "distance":distance}
-        output = json.dumps(output_dict)	
-        
-        return frame ,output , True, probability
+        try:
+            output_dict = { "xCenter": xCenter, "yCenter": yCenter,"theta": theta, "distance":distance}	
+            print type(output_dict)
+            output = json.dumps(output_dict)
+            return frame,output,True,probability
+        except:
+            pass
+
+        return frame ,"" , True, probability
         
